@@ -3,6 +3,7 @@ package sptech.school.Hash_Cache.cache;
 import lombok.Getter;
 import sptech.school.Hash_Cache.entity.Conteudo;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -21,5 +22,10 @@ public class EntradaCache {
 
 	public void registrarAcesso() {
 		this.ultimoAcesso = Instant.now();
+	}
+
+	public boolean estaExpirada(Duration ttl) {
+		Duration tempoArmazenado = Duration.between(armazenadoEm, Instant.now());
+		return tempoArmazenado.compareTo(ttl) >= 0;
 	}
 }
