@@ -2,9 +2,11 @@ package sptech.school.Hash_Cache.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,5 +46,19 @@ public class ConteudoController {
 	public ResponseEntity<ConteudoResponse> buscarPorId(@PathVariable Long id) {
 		Conteudo conteudo = service.buscarPorId(id);
 		return ResponseEntity.ok(mapper.paraResponse(conteudo));
+	}
+
+	@PutMapping("/{id}")
+	public ResponseEntity<ConteudoResponse> atualizar(
+			@PathVariable Long id, @Valid @RequestBody ConteudoRequest request) {
+		Conteudo novosDados = mapper.paraEntidade(request);
+		Conteudo atualizado = service.atualizar(id, novosDados);
+		return ResponseEntity.ok(mapper.paraResponse(atualizado));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> excluir(@PathVariable Long id) {
+		service.excluir(id);
+		return ResponseEntity.noContent().build();
 	}
 }

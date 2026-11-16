@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 import sptech.school.Hash_Cache.cache.ConteudoCache;
 import sptech.school.Hash_Cache.entity.Conteudo;
@@ -39,10 +41,42 @@ public class ConteudoService {
 		return cache.buscar(id, () -> buscarNaFonte(id));
 	}
 
+	@Transactional
+	public Conteudo atualizar(Long id, Conteudo novosDados) {
+		Conteudo existente = buscarNoRepositorio(id);
+		existente.setTitulo(novosDados.getTitulo());
+		existente.setCorpo(novosDados.getCorpo());
+		existente.setAutor(novosDados.getAutor());
+
+		Conteudo atualizado = repository.saveAndFlush(existente);
+		invalidarAposCommit(id);
+		return atualizado;
+	}
+
+	@Transactional
+	public void excluir(Long id) {
+		Conteudo existente = buscarNoRepositorio(id);
+		repository.delete(existente);
+		invalidarAposCommit(id);
+	}
+
 	private Conteudo buscarNaFonte(Long id) {
 		simularLentidao();
+		return buscarNoRepositorio(id);
+	}
+
+	private Conteudo buscarNoRepositorio(Long id) {
 		return repository.findById(id)
 				.orElseThrow(() -> new ConteudoNaoEncontradoException(id));
+	}
+
+	private void invalidarAposCommit(Long id) {
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				cache.invalidar(id);
+			}
+		});
 	}
 
 	private void simularLentidao() {

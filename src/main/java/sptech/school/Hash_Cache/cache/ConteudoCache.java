@@ -76,6 +76,15 @@ public class ConteudoCache {
 		}
 	}
 
+	public void invalidar(Long id) {
+		Objects.requireNonNull(id, "O id nao pode ser nulo.");
+		synchronized (trava) {
+			if (entradas.remove(id) != null) {
+				logger.info("Cache INVALIDADO - id={}", id);
+			}
+		}
+	}
+
 	private void removerExpirados() {
 		entradas.entrySet().removeIf(item -> {
 			if (item.getValue().estaExpirada(ttl)) {
