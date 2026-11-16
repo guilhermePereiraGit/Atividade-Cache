@@ -12,6 +12,8 @@ import sptech.school.Hash_Cache.entity.Conteudo;
 import sptech.school.Hash_Cache.exception.ConteudoNaoEncontradoException;
 import sptech.school.Hash_Cache.repository.ConteudoRepository;
 
+import java.util.function.Consumer;
+
 @Service
 public class ConteudoService {
 
@@ -39,6 +41,11 @@ public class ConteudoService {
 	@Transactional(readOnly = true)
 	public Conteudo buscarPorId(Long id) {
 		return cache.buscar(id, () -> buscarNaFonte(id));
+	}
+
+	@Transactional(readOnly = true)
+	public Conteudo buscarPorId(Long id, Consumer<Boolean> informarHit) {
+		return cache.buscar(id, () -> buscarNaFonte(id), informarHit);
 	}
 
 	@Transactional

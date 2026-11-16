@@ -1,5 +1,6 @@
 package sptech.school.Hash_Cache.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,8 +44,10 @@ public class ConteudoController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<ConteudoResponse> buscarPorId(@PathVariable Long id) {
-		Conteudo conteudo = service.buscarPorId(id);
+	public ResponseEntity<ConteudoResponse> buscarPorId(
+			@PathVariable Long id, HttpServletResponse response) {
+		Conteudo conteudo = service.buscarPorId(id,
+				hit -> response.setHeader("X-Cache", hit ? "HIT" : "MISS"));
 		return ResponseEntity.ok(mapper.paraResponse(conteudo));
 	}
 
